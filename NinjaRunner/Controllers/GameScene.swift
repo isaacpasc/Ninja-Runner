@@ -1882,7 +1882,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for i in nodesToCreate.indices {
             let newNode = SKLabelNode()
             let offset:Double = Double(i * 70)
-            newNode.text = "\(nodesToCreate[i].place). \(nodesToCreate[i].name)"
+            newNode.text = "\(nodesToCreate[i].place). \(nodesToCreate[i].name.maxLength(length: 12))"
             newNode.fontName = "Party Confetti"
             newNode.fontColor = .white
             newNode.fontSize = 50
@@ -2010,7 +2010,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             let newNode = SKLabelNode()
             let offset:Double = Double((i + 1) * 300)
-            newNode.text = "\(gameModel.players[i].name)"
+            newNode.text = "\(gameModel.players[i].name)".maxLength(length: 12)
             let winNode = SKLabelNode()
             winNode.fontName = "Party Confetti"
             winNode.fontColor = .white
@@ -2098,4 +2098,20 @@ extension GameScene: GKMatchDelegate {
             print("Recieve data Failed")
         }
     }
+}
+
+extension String {
+   func maxLength(length: Int) -> String {
+       var str = self
+       let nsString = str as NSString
+       if nsString.length >= length {
+           str = nsString.substring(with:
+               NSRange(
+                location: 0,
+                length: nsString.length > length ? length : nsString.length)
+           )
+           str.append("..")
+       }
+       return  str
+   }
 }
