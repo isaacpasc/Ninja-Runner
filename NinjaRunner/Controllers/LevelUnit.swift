@@ -78,7 +78,7 @@ class LevelUnit:SKNode {
         // create ceiling if top unit
         if (isTop) {
             let ceilingSprite = SKNode()
-            ceilingSprite.physicsBody = SKPhysicsBody(rectangleOf: newSize, center:CGPoint(x: 0, y: self.position.y - 340 + (levelUnitHeight / 2)))
+            ceilingSprite.physicsBody = SKPhysicsBody(rectangleOf: newSize, center:CGPoint(x: 0, y: self.position.y - 340 + (levelUnitHeight / 2) - 50))
             ceilingSprite.physicsBody!.isDynamic = false
             ceilingSprite.physicsBody!.restitution = 0
             //add sprite to level

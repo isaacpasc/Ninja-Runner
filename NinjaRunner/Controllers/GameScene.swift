@@ -80,6 +80,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var playerTopJump = false
     private var playerTopJumpTimer = Timer()
     private var playerJumpTimer = Timer()
+    private var playerTeleportTimer = Timer()
     
     // track when player is bottom or top..single player only
     private var isOnTop = false
@@ -123,6 +124,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var confettiView: SAConfettiView?
     
     private var achievementsLoaded = false
+    private var playerDidTeleport = false
     private var teleportNum = 0
     
     @objc func resumingGame(_ sender: Notification) {
@@ -666,7 +668,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 if (!isDead) {
                     
-                    if Mode.type == 0 || Mode.type == 2 { // single player, or online
+                    if (Mode.type == 0 || Mode.type == 2) && !playerDidTeleport { // single player, or online
                         guard let body = thePlayer.physicsBody else { return }
                         emitter(body, emitter: "Glow.sks")
                         if (UserDefaults.standard.bool(forKey: "volume")) {
@@ -674,15 +676,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         }
                         let generator = UIImpactFeedbackGenerator(style: .light)
                         generator.impactOccurred()
-                        if thePlayer.position.y > 0 {
-                            isOnTop = false
+                        if thePlayer.position.y > 7.5 {
                             thePlayer.position.y -= (levelUnitHeight / 2) - 50
                         } else {
-                            isOnTop = true
                             thePlayer.position.y += (levelUnitHeight / 2) - 50
                         }
                         emitter(body, emitter: "Glow.sks")
                         teleportNum += 1
+                        playerDidTeleport = true
+                        playerTeleportTimer = .scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(endTeleport), userInfo: nil, repeats: false)
                     } else if Mode.type == 1 { // splitscreen
                         // player must be touching platform or floor
                         if thePlayerTop.isGrounded {
@@ -709,6 +711,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
             }
         }
+    }
+    
+    @objc func endTeleport() {
+        playerDidTeleport = false
     }
     
     // restart level after death
@@ -927,6 +933,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         
+        if Mode.type != 1 {
+            if thePlayer.position.y > 10 {
+                isOnTop = true
+            } else {
+                isOnTop = false
+            }
+        }
+        
         
         // check if player is alive and game is not paused
         if (!isDead && !worldNode.isPaused) {
@@ -960,9 +974,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             // increase score each frame (max 60)
             if UIScreen.main.maximumFramesPerSecond == 120 {
-                scoreData += 0.004 + (scoreData * 0.00025)
+                scoreData += 0.025
             } else {
-                scoreData += 0.008 + (scoreData * 0.0005)
+                scoreData += 0.05
             }
             scoreLabel.text = "Score: \(Int(scoreData))"
             

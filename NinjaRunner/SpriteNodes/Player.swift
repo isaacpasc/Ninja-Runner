@@ -10,7 +10,8 @@ class Player: SKSpriteNode {
     // initialize other var's
     var isGrounded:Bool = false
     var isRunning:Bool = true
-    private var minSpeed:CGFloat = 8
+    private var minSpeed:CGFloat = 9
+    private var maxSpeed:CGFloat = 13
     
     // required:
     required init?(coder aDecoder: NSCoder) {
@@ -49,12 +50,15 @@ class Player: SKSpriteNode {
     func update(score: Double) {
         
         // move player each frame (cut speed in half if running 120fps)
-        if UIScreen.main.maximumFramesPerSecond == 120 {
-            self.position = CGPoint(x: self.position.x + (minSpeed / 2) + (score * 0.01), y: self.position.y)
+        let is120 = UIScreen.main.maximumFramesPerSecond == 120
+        let xIncrease: CGFloat = (is120 ? score * 0.004 : score * 0.008)
+        let minSpeedCalc = (is120 ? minSpeed/2 : minSpeed)
+        let maxSpeedCalc = (is120 ? maxSpeed/2 : maxSpeed)
+        if (xIncrease + minSpeedCalc) > maxSpeedCalc {
+            self.position = CGPoint(x: self.position.x + maxSpeedCalc, y: self.position.y)
         } else {
-            self.position = CGPoint(x: self.position.x + minSpeed + (score * 0.02), y: self.position.y)
+            self.position = CGPoint(x: self.position.x + minSpeedCalc + xIncrease, y: self.position.y)
         }
-        
     }
     
     func setUpRun() {
