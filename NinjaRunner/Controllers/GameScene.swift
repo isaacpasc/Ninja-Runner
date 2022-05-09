@@ -1049,7 +1049,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let cameraPositionInScene:CGPoint = self.convert(node.position, from: worldNode)
         
         // -200 on x to let player see more of oncoming enemies
-        worldNode.position = CGPoint(x: worldNode.position.x - cameraPositionInScene.x - 200, y:0 )
+        worldNode.position = CGPoint(x: worldNode.position.x - cameraPositionInScene.x - 400, y:0 )
     }
     
     // collision handling:
@@ -1567,24 +1567,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if (Mode.type == 1) {
             if let tagteam = findAchievement(id: "tagteam") {
                 if !(tagteam.first?.isCompleted ?? false) {
-                    if Double(Int(scoreData)) > tagteam.first?.percentComplete ?? 0.0 {
-                        if Double(Int(scoreData)) > 100.0 {
+                    if Double(Int(scoreData))/5 > tagteam.first?.percentComplete ?? 0.0 {
+                        if Double(Int(scoreData))/5 >= 100.0 {
                             tagteam.first?.percentComplete = 100.0
                             totalAchieves += 1
                             try await updateAchievement(allAchievements: tagteam)
                         } else {
-                            tagteam.first?.percentComplete = Double(Int(scoreData))
+                            tagteam.first?.percentComplete = Double(Int(scoreData))/5
                             try await updateAchievement(allAchievements: tagteam)
                         }
                     }
                 }
             } else {
                 let tagteam = GKAchievement(identifier: "tagteam")
-                if Double(Int(scoreData)) > 100.0 {
+                if Double(Int(scoreData))/5 > 100.0 {
                     tagteam.percentComplete = 100.0
                     totalAchieves += 1
                 } else {
-                    tagteam.percentComplete = Double(Int(scoreData))
+                    tagteam.percentComplete = Double(Int(scoreData))/5
                 }
                 tagteam.showsCompletionBanner = true
                 try await updateAchievement(allAchievements: [tagteam])
@@ -1672,24 +1672,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         // all
-        if (totalAchieves > 0) {
-            increaseAmount = (Double(totalAchieves) * 11.11)
-            if let all = findAchievement(id: "all") {
-                if !(all.first?.isCompleted ?? false) {
-                    if (all.first?.percentComplete ?? 0) + increaseAmount > 90 {
-                        all.first?.percentComplete = 100.0
-                        totalAchieves += 1
-                    } else {
-                        all.first?.percentComplete += 11.11
-                    }
-                }
+        if let all = findAchievement(id: "all") {
+            if !(all.first?.isCompleted ?? false) {
+                all.first?.percentComplete = await checkAllAchievements()
                 try await updateAchievement(allAchievements: all)
-            } else {
-                let all = GKAchievement(identifier: "all")
-                all.showsCompletionBanner = true
-                all.percentComplete += increaseAmount
-                try await updateAchievement(allAchievements: [all])
             }
+        } else {
+            let all = GKAchievement(identifier: "all")
+            all.showsCompletionBanner = true
+            all.percentComplete = await checkAllAchievements()
+            try await updateAchievement(allAchievements: [all])
         }
         
         try await achievements = loadAchievement()
@@ -1705,6 +1697,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
             }
         }
+    }
+    
+    private func checkAllAchievements() async -> Double {
+        var numCompletion = 0
+        var didComplete: [Bool] = [false, false, false, false, false, false, false, false, false]
+        if let plus100 = findAchievement(id: "plus100"),
+           let plus500 = findAchievement(id: "plus500"),
+           let plus1000 = findAchievement(id: "plus1000"),
+           let kunai100 = findAchievement(id: "kunai100"),
+           let acid100 = findAchievement(id: "acid100"),
+           let box100 = findAchievement(id: "box100"),
+           let Teleport100 = findAchievement(id: "Teleport100"),
+           let Teleport200 = findAchievement(id: "Teleport200"),
+           let tagteam = findAchievement(id: "tagteam")
+        {
+            let achievementsArr = [plus100.first, plus500.first, plus1000.first, kunai100.first, acid100.first, box100.first, Teleport100.first, Teleport200.first, tagteam.first]
+            for i in achievementsArr.indices {
+                if achievementsArr[i]?.isCompleted ?? false {
+                    didComplete[i] = true
+                }
+            }
+        }
+        for completion in didComplete {
+            if completion {
+                numCompletion += 1
+            }
+        }
+        return (numCompletion > 8 ? 100.0 : Double(numCompletion) * 11.11)
     }
     
     private func findAchievement(id: String) -> [GKAchievement]? {

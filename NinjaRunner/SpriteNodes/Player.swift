@@ -38,7 +38,7 @@ class Player: SKSpriteNode {
         }
         body.contactTestBitMask = BodyType.enemy.rawValue | BodyType.platformObject.rawValue | BodyType.groundTop.rawValue  | BodyType.waterTop.rawValue | BodyType.bullet.rawValue | BodyType.ground.rawValue  | BodyType.water.rawValue
         body.collisionBitMask = BodyType.platformObject.rawValue | BodyType.groundTop.rawValue | BodyType.ground.rawValue | BodyType.water.rawValue | BodyType.waterTop.rawValue
-        body.friction = 0.9 //0 is like glass, 1 is like sandpaper to walk on
+        body.friction = 0 //0 is like glass, 1 is like sandpaper to walk on
         self.physicsBody = body
         
         // set up actions
@@ -57,7 +57,7 @@ class Player: SKSpriteNode {
         if (xIncrease + minSpeedCalc) > maxSpeedCalc {
             self.position = CGPoint(x: self.position.x + maxSpeedCalc, y: self.position.y)
         } else {
-            self.position = CGPoint(x: self.position.x + minSpeedCalc + xIncrease, y: self.position.y)
+            self.position = CGPoint(x: self.position.x + (minSpeedCalc + xIncrease), y: self.position.y)
         }
     }
     
