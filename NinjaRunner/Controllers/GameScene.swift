@@ -310,7 +310,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         thePlayerTop.zPosition = 102
         
         // set up score label
-        scoreLabel.text = "Score: \(Int(scoreData))"
+        scoreLabel.text = "Score: \(Int(teleportNum))"
         scoreLabel.zPosition = 1000
         scoreLabel.horizontalAlignmentMode = .left
         scoreLabel.verticalAlignmentMode = .top
@@ -978,7 +978,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             } else {
                 scoreData += 0.05
             }
-            scoreLabel.text = "Score: \(Int(scoreData))"
+            scoreLabel.text = "Score: \(Int(teleportNum))"
             
             // update living player
             thePlayer.update(score: scoreData)
@@ -1841,7 +1841,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func resetEverything() {
         // reset score and score label
         scoreData = 0
-        scoreLabel.text = "Score: \(Int(scoreData))"
+        scoreLabel.text = "Score: \(Int(teleportNum))"
         
         // action sequence to reset player
         let fadeOut:SKAction = SKAction.fadeAlpha(to: 0, duration: 0.2)
